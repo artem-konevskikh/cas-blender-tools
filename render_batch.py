@@ -72,15 +72,16 @@ def render_model(
         links.new(render_layers.outputs['Depth'], depth_file_output.inputs[0])
     else:
         depth_file_output.format.color_mode = "BW"
-        depth_scale = 1.7
         # Remap as other types can not represent the full range of depth.
         map = nodes.new(type="CompositorNodeMapValue")
         # Size is chosen kind of arbitrarily,
         # try out until you're satisfied with resulting depth map.
         map.offset = [-0.7]
-        map.size = [depth_scale]
+        map.size = [1.4]
         map.use_min = True
         map.min = [0]
+        map.use_max = True
+        map.max = [255]
 
         links.new(render_layers.outputs['Depth'], map.inputs[0])
         links.new(map.outputs[0], depth_file_output.inputs[0])

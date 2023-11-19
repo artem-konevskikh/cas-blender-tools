@@ -15,3 +15,5 @@ blender --background --python mytest.py -- --input_dir models --output_dir outpu
 **output_dir**: The path the output will be dumped to. Default: output  
 **resolution**: Resolution of the images. Default: 1024  
 **engine**: Blender internal engine for rendering. E.g. 'CYCLES', 'BLENDER_EEVEE'. Default: 'BLENDER_EEVEE'  
+  
+Based on [[https://github.com/panmari/stanford-shapenet-renderer/tree/master]]
