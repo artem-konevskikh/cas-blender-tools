@@ -134,16 +134,73 @@ def render_models(
 
     mat = bpy.data.materials.new(name="New_Mat")
     mat.use_nodes = True
-    bsdf = mat.node_tree.nodes["Principled BSDF"]
-    tex_image = mat.node_tree.nodes.new('ShaderNodeTexImage')
+    mat_nodes = mat.node_tree.nodes
+    mat_links = mat.node_tree.links
+
+    # Reuse the material output node that is created by default
+    material_output = mat_nodes.get("Material Output")
+    # Create the Principled BSDF node
+    bsdf = mat_nodes["Principled BSDF"]
+    mat_links.new(material_output.inputs["Surface"],
+                  bsdf.outputs["BSDF"])
+    # Create the Texture Coordinate node
+    mapping_node = mat_nodes.new("ShaderNodeMapping")
+    tex_coordinate = mat_nodes.new("ShaderNodeTexCoord")
+    mat_links.new(mapping_node.inputs["Vector"],
+                  tex_coordinate.outputs["UV"])
+
+    # Create the Image Texture node
+    tex_image = mat_nodes.new('ShaderNodeTexImage')
     tex_path = '../stone_floor_tkkkeicew/tkkkeicew_8K_Albedo.jpg'
     tex_image.image = bpy.data.images.load(tex_path)
-    mat.node_tree.links.new(bsdf.inputs['Base Color'],
-                            tex_image.outputs['Color'])
+    mat_links.new(bsdf.inputs['Base Color'], tex_image.outputs['Color'])
+    mat_links.new(tex_image.inputs["Vector"],
+                  mapping_node.outputs["Vector"])
 
+    # Create Image Texture node and load the displacement texture.
+    # You need to add the actual path to the texture.
     disp_path = '../stone_floor_tkkkeicew/tkkkeicew_8K_Displacement.exr'
-    tex_disp = bpy.data.textures.new('Disp', type='IMAGE')
-    tex_disp.image = bpy.data.images.load(disp_path)
+    displacement_tex = mat_nodes.new("ShaderNodeTexImage")
+    displacement_tex.image = bpy.data.images.load(disp_path)
+    displacement_tex.image.colorspace_settings.name = "Non-Color"
+
+    # Create the Displacement node
+    displacement = mat_nodes.new("ShaderNodeDisplacement")
+    # displacement.inputs["Scale"].default_value = 0.01
+
+    # Connect the Texture Coordinate node to the displacement texture.
+    # This uses the active UV map of the object.
+    mat_links.new(displacement_tex.inputs["Vector"],
+                  mapping_node.outputs["Vector"])
+
+    # Connect the displacement texture to the Displacement node
+    mat_links.new(displacement.inputs["Height"],
+                  displacement_tex.outputs["Color"])
+
+    # Connect the Displacement node to the Material Output node
+    mat_links.new(material_output.inputs["Displacement"],
+                  displacement.outputs["Displacement"])
+
+    # Create the Normal texture node
+    norm_path = '../stone_floor_tkkkeicew/tkkkeicew_8K_Normal.jpg'
+    normal_tex = mat_nodes.new("ShaderNodeTexImage")
+    normal_tex.image = bpy.data.images.load(norm_path)
+    normal_tex.image.colorspace_settings.name = "Non-Color"
+    normal_map = mat_nodes.new("ShaderNodeNormalMap")
+    # normal_map.inputs['Strength'].default_value = 0.5
+    mat_links.new(normal_map.inputs['Color'], normal_tex.outputs['Color'])
+    mat_links.new(bsdf.inputs['Normal'], normal_map.outputs['Normal'])
+    mat_links.new(normal_tex.inputs["Vector"],
+                  mapping_node.outputs["Vector"])
+
+    # Create the Normal texture node
+    rough_path = '../stone_floor_tkkkeicew/tkkkeicew_8K_Roughness.jpg'
+    roughness_tex = mat_nodes.new("ShaderNodeTexImage")
+    roughness_tex.image = bpy.data.images.load(rough_path)
+    roughness_tex.image.colorspace_settings.name = "Non-Color"
+    mat_links.new(bsdf.inputs['Roughness'], roughness_tex.outputs['Color'])
+    mat_links.new(roughness_tex.inputs["Vector"],
+                  mapping_node.outputs["Vector"])
 
     for model_file in Path(input_dir).rglob('*.obj'):
         # Import textured mesh
@@ -151,17 +208,17 @@ def render_models(
 
         obj = bpy.context.selected_objects[0]
 
+        obj.rotation_euler[0] = math.radians(3)
+        obj.rotation_euler[1] = math.radians(0.2)
+
         if obj.data.materials:
             obj.data.materials[0] = mat
         else:
             obj.data.materials.append(mat)
 
-        # disp_mod = obj.modifiers.new("Displace", type='DISPLACE')
-        # disp_mod.strength = 0.2
-        # # disp_mod.mid_level = 0
-        # disp_mod.texture = tex_disp
-
         context.view_layer.objects.active = obj
+
+        bpy.ops.object.subdivision_set(level=3)
 
         # set object origin to center of mass
         bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_VOLUME',
@@ -171,6 +228,17 @@ def render_models(
         bpy.ops.object.location_clear(clear_delta=False)
         bpy.ops.object.location_clear(clear_delta=True)
         bpy.context.object.location = (0, 0, 0)
+
+        # obj.select_set(True)
+        lm = obj.data.uv_layers.get("LightMap")
+        if not lm:
+            lm = obj.data.uv_layers.new(name="LightMap")
+        lm.active = True
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.mesh.select_all(action='SELECT')  # for all faces
+        bpy.ops.uv.smart_project(angle_limit=66, island_margin=0.02)
+        bpy.ops.object.editmode_toggle()
+        # obj.select_set(False)
 
         # scale object
         max_dim_current = max(obj.dimensions.x, obj.dimensions.y,
@@ -196,7 +264,7 @@ def render_models(
 
         # Set objekt IDs
         obj.pass_index = 1
-        toggle_shading(context.active_object)
+        # toggle_shading(context.active_object)
 
         i = int(str(model_file).split('_')[-1].split('.')[0])
         cam_empty.rotation_euler[2] = math.radians(i)
@@ -204,7 +272,7 @@ def render_models(
         render_fp = f"{output_dir}/frame_{i:05d}"
         scene.render.filepath = render_fp
         bpy.ops.render.render(write_still=True)
-
+        # break
         context.active_object.select_set(True)
         bpy.ops.object.delete()
         bpy.ops.object.select_all(action='DESELECT')
