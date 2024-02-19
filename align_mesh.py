@@ -5,6 +5,7 @@ Rotation algorithm is from https://stackoverflow.com/questions/62596854/aligning
 """
 
 import math
+import glob
 import open3d as o3d
 import numpy as np
 import matplotlib.pyplot as plt
@@ -58,7 +59,11 @@ def render_mesh(mesh,
                 depth_map_filename: str = "depth.png"):
     renderer_pc = o3d.visualization.rendering.OffscreenRenderer(width, height)
     renderer_pc.scene.set_background(np.array([0, 0, 0, 0]))
-    renderer_pc.scene.add_geometry("mesh", textured_mesh)
+    mat = o3d.visualization.rendering.MaterialRecord()
+    # mat.albedo_img = mesh.textures[1]
+    # mat.aspect_ratio = 1.0
+    mat.shader = "defaultLit"
+    renderer_pc.scene.add_geometry("mesh", mesh, mat)
 
     # Optionally set the camera field of view (to zoom in a bit)
     vertical_field_of_view = 15.0  # between 5 and 90 degrees
@@ -78,33 +83,21 @@ def render_mesh(mesh,
     renderer_pc.scene.camera.look_at(center, eye, up)
 
     depth_image = np.asarray(renderer_pc.render_to_depth_image())
-    # np.save('depth', depth_image)
+    np.save('depth', depth_image)
 
-    normalized_image = (depth_image - depth_image.min()) / \
-        (depth_image.max() - depth_image.min())
-    plt.imshow(normalized_image)
+    normalized_image = (depth_image - depth_image.min()) / (depth_image.max() - depth_image.min())
+    plt.imshow(depth_image)
     plt.savefig(depth_map_filename)
 
 
-# Load the mesh
-# mesh = o3d.io.read_triangle_model("models/CAS-Kalksburg-1 Sarp fusion 1.obj")
-textured_mesh = o3d.io.read_triangle_mesh("models/CAS-Kalksburg-1 Sharp fusion 1.obj")
-textured_mesh.compute_vertex_normals()
-textured_mesh.textures = [textured_mesh.textures[1], textured_mesh.textures[1]]
+input_folder = "models"
+for f in sorted(glob.glob(f"{input_folder}/*.obj")):
+    filename = f.split('/')[-1].split('.')[0].replace(' ', '_')
+    print(filename)
+    textured_mesh = o3d.io.read_triangle_mesh(f)
+    textured_mesh.compute_vertex_normals()
+    textured_mesh.textures = [textured_mesh.textures[1], textured_mesh.textures[1]]
 
-rotate_mesh(textured_mesh)
-render_mesh(textured_mesh, filename="renders/render.png",
-            depth_map_filename="renders/depthmap.png")
-
-# o3d.visualization.draw_geometries([textured_mesh],
-#                                   background_color=(0, 0, 0))
-# vis = o3d.visualization.Visualizer()
-# vis.create_window(width=1024, height=1024, visible=True)
-# # Call only after creating visualizer window.
-# vis.get_render_option().background_color = [0, 0, 0]
-# vis.add_geometry(textured_mesh)
-# vis.run()
-
-# vis.capture_screen_image("renders/CAS-Kalksburg-1_Sharp_fusion_1.png")
-# vis.capture_depth_image("renders/CAS-Kalksburg-1_Sharp_fusion_1_depth.png",
-#                         depth_scale=100.0)
+    rotate_mesh(textured_mesh)
+    render_mesh(textured_mesh, filename=f"renders/{filename}_render.png",
+                depth_map_filename=f"renders/{filename}_depthmap.png")
