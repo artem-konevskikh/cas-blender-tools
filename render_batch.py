@@ -1,6 +1,7 @@
 import argparse
 import sys
 import math
+
 import bpy
 from pathlib import Path
 
@@ -23,14 +24,27 @@ def render_model(
     Args:
         model_file (str): Path to obj file
         output_dir (str): Output directory
-        resolution (int, optional): Resolution of rendered image. Defaults to 1024.
-        num_views_z (int, optional): Number of rotations around z-axis. Defaults to 12.
-        num_views_x (int, optional): Number of rotations around x-axis. Defaults to 6.
-        engine (str, optional): Blender internal render engine. Possible values 'BLENDER_EEVEE', 'CYCLES'. Defaults to 'BLENDER_EEVEE'.
-        file_format (str, optional): Rendered image format. Possible values 'PNG', 'OPEN_EXR', 'JPEG'.Defaults to 'PNG'.
-        color_depth (int, optional): Color depth of rendered image. Possible values '8', '16'. Defaults to '8'.
-        color_mode (str, optional): Color mode of rendered image. Possible values 'RGB', 'RGBA'. Defaults to 'RGBA'.
-        max_dim (int, optional): Maximum dimension of the object. Needed to fit object in frame. Defaults to 0.5.
+        resolution (int, optional): Resolution of rendered image.
+                                    Defaults to 1024.
+        num_views_z (int, optional): Number of rotations around z-axis.
+                                     Defaults to 12.
+        num_views_x (int, optional): Number of rotations around x-axis.
+                                     Defaults to 6.
+        engine (str, optional): Blender internal render engine.
+                                Possible values 'BLENDER_EEVEE', 'CYCLES'.
+                                Defaults to 'BLENDER_EEVEE'.
+        file_format (str, optional): Rendered image format.
+                                     Possible values 'PNG', 'OPEN_EXR', 'JPEG'.
+                                     Defaults to 'PNG'.
+        color_depth (int, optional): Color depth of rendered image.
+                                     Possible values '8', '16'.
+                                     Defaults to '8'.
+        color_mode (str, optional): Color mode of rendered image.
+                                    Possible values 'RGB', 'RGBA'.
+                                    Defaults to 'RGBA'.
+        max_dim (int, optional): Maximum dimension of the object.
+                                 Needed to fit object in frame.
+                                 Defaults to 0.5.
     """
     # Set up rendering
     context = bpy.context
@@ -228,17 +242,21 @@ def render_model(
 
     fp = model_file.split('/')[-1].split('.')[0]
     fp = fp.replace(' ', '_').replace('-', '_')
+
     bpy.ops.view3d.camera_to_view_selected()
     for z in range(0, num_views_z+1):
         angle_z = math.radians(z*stepsize_z)
         for x in range(0, num_views_x+1):
             angle_x = math.radians(x*stepsize_x)
-            render_fp = f"{output_dir}/{fp}_z_{int(z*stepsize_z):03d}_x_{int(x*stepsize_x):03d}"
+            image_fn = f"{fp}_z_{int(z*stepsize_z):03d}" + \
+                f"_x_{int(x*stepsize_x):03d}"
+            render_fp = f"{output_dir}/render/{image_fn}"
+            depth_fp = f"{output_dir}/depth/{image_fn}"
 
             scene.render.filepath = render_fp
-            depth_file_output.file_slots[0].path = render_fp + "_depth"
-            normal_file_output.file_slots[0].path = render_fp + "_normal"
-            albedo_file_output.file_slots[0].path = render_fp + "_albedo"
+            depth_file_output.file_slots[0].path = depth_fp
+            # normal_file_output.file_slots[0].path = render_fp + "_normal"
+            # albedo_file_output.file_slots[0].path = render_fp + "_albedo"
             id_file_output.file_slots[0].path = render_fp + "_id"
 
             bpy.ops.render.render(write_still=True)  # render still
@@ -246,29 +264,36 @@ def render_model(
             cam_empty.rotation_euler = (angle_x, 0, angle_z)
 
 
-# parse arguments
-parser = argparse.ArgumentParser(
-    description='Renders given obj file by rotation a camera around it.')
-parser.add_argument('-i', '--input_dir', type=str, default='models',
-                    help='The path to load models.')
-parser.add_argument('-o', '--output_dir', type=str, default='output',
-                    help='The path the output will be dumped to.')
-parser.add_argument('-r', '--resolution', type=int, default=1024,
-                    help='Resolution of the images.')
-parser.add_argument('-e', '--engine', type=str, default='BLENDER_EEVEE',
-                    help='Blender internal engine for rendering. E.g.\
-                        CYCLES, BLENDER_EEVEE, ...')
+if __name__ == "__main__":
+    # parse arguments
+    parser = argparse.ArgumentParser(
+        description='Renders given obj file by rotation a camera around it.')
+    parser.add_argument('-i', '--input_dir', type=str, default='models',
+                        help='The path to load models.')
+    parser.add_argument('-o', '--output_dir', type=str, default='output',
+                        help='The path the output will be dumped to.')
+    parser.add_argument('-r', '--resolution', type=int, default=1024,
+                        help='Resolution of the images.')
+    parser.add_argument('-e', '--engine', type=str, default='BLENDER_EEVEE',
+                        help='Blender internal engine for rendering. E.g.\
+                            CYCLES, BLENDER_EEVEE, ...')
+    parser.add_argument('-x', '--num_views_x', type=int, default=36,
+                        help='Number of steps around x-axis')
+    parser.add_argument('-z', '--num_views_z', type=int, default=36,
+                        help='Number of steps around z-axis')
 
-argv = sys.argv[sys.argv.index("--") + 1:]
-args = parser.parse_args(argv)
-input_dir = args.input_dir
-output_dir = args.output_dir
-resolution = args.resolution
-engine = args.engine
+    argv = sys.argv[sys.argv.index("--") + 1:]
+    args = parser.parse_args(argv)
+    input_dir = args.input_dir
+    output_dir = args.output_dir
+    resolution = args.resolution
+    engine = args.engine
+    num_views_x = args.num_views_x
+    num_views_z = args.num_views_z
 
-# create output dirs for renders, depth maps and normal maps
-# Path(output_dir).mkdir(parents=True, exist_ok=True)
+    # create output dirs for renders, depth maps and normal maps
+    # Path(output_dir).mkdir(parents=True, exist_ok=True)
 
-
-for model_file in Path(input_dir).rglob('*.obj'):
-    render_model(str(model_file), str(output_dir), resolution, 1, 1, engine)
+    for model_file in Path(input_dir).rglob('*.obj'):
+        render_model(str(model_file), str(output_dir),
+                     resolution, num_views_x, num_views_z, engine)
