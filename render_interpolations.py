@@ -201,8 +201,9 @@ def render_models(
     mat_links.new(bsdf.inputs['Roughness'], roughness_tex.outputs['Color'])
     mat_links.new(roughness_tex.inputs["Vector"],
                   mapping_node.outputs["Vector"])
-
-    for model_file in Path(input_dir).rglob('*.obj'):
+    models = sorted(Path(input_dir).rglob('*.obj'))
+    models += models[::-1]
+    for i, model_file in enumerate(models):
         # Import textured mesh
         bpy.ops.import_scene.obj(filepath=str(model_file))
 
@@ -266,7 +267,7 @@ def render_models(
         obj.pass_index = 1
         # toggle_shading(context.active_object)
 
-        i = int(str(model_file).split('_')[-1].split('.')[0])
+        # i = int(str(model_file).split('_')[-1].split('.')[0])
         cam_empty.rotation_euler[2] = math.radians(i)
 
         render_fp = f"{output_dir}/frame_{i:05d}"
