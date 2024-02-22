@@ -163,3 +163,4 @@ models/
 output/
 renders/
 *.mp4
+*.png
