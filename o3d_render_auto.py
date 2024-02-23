@@ -76,20 +76,23 @@ def render_mesh(mesh,
                 width: int = 1024, height: int = 1024,
                 render_name: str = "render.png",
                 depth_name: str = "depth.png"):
-    material = o3d.visualization.rendering.Material("defaultLit")
-    material.scalar_properties = {
-            "metallic": 0.0,
-            "roughness": 1.0,
-            "reflectance": 0.15,
-            "clearcoat": 0.1,
-            "clearcoat_roughness": 0.287,
-            "anisotropy": 0.0,
-            "transmission": 0.6,
-            "thickness": 0.3
-        }
+    material = o3d.visualization.rendering.MaterialRecord()
+    material.shader = "defaultLit"
+    material.thickness = 0.3
+    material.transmission = 0.6
+
+    bbox = mesh.get_axis_aligned_bounding_box()
+    center = bbox.get_center()
+    extent = bbox.get_extent()
+
+    distance = 1.5*extent.max()
+    
     renderer_pc = o3d.visualization.rendering.OffscreenRenderer(width, height)
     renderer_pc.scene.set_background(np.array([0, 0, 0, 0]))
     renderer_pc.scene.add_geometry("mesh", mesh, material)
+    renderer_pc.scene.camera.set_projection(60, 1.0, 0.1, 1000.0, o3d.visualization.rendering.Camera.FovType.Horizontal)
+    renderer_pc.scene.camera.look_at(center.tolist(), [100, 100, 100], [0, 0, distance])
+
 
     depth_image = np.asarray(renderer_pc.render_to_depth_image())
     minval = np.nanmin(depth_image)
@@ -117,11 +120,12 @@ if __name__ == "__main__":
     output_dir = "renders"
     meshes = sorted(glob.glob(f"{input_dir}/*.obj"))
     for mesh_path in meshes:
+        print(mesh_path)
         # mesh_path = "models/CAS-Kalksburg-1 Sharp fusion 1.obj"
         textured_mesh = o3d.io.read_triangle_mesh(mesh_path)
         textured_mesh.compute_vertex_normals()
         textured_mesh.textures = [textured_mesh.textures[1],
                                   textured_mesh.textures[1]]
-        textured_mesh = rotate_mesh(textured_mesh)
+        # textured_mesh = rotate_mesh(textured_mesh)
         render_name, depth_name = get_filename(mesh_path, output_dir)
         render_mesh(textured_mesh, 2048, 2048, render_name, depth_name)
