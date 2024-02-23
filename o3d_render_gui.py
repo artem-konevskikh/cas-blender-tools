@@ -95,19 +95,28 @@ def custom_draw_geometry_with_key_callback(meshes, output_dir):
 
     def capture_image_and_depth(vis):
         print("capture image")
-        depth = vis.capture_depth_float_buffer()
+        depth = vis.capture_depth_float_buffer(do_render=True)
         depth_image = np.asarray(depth)
-        normalized_image = (depth_image - depth_image.min()) / (
-            depth_image.max() - depth_image.min()
-        )
+        minval = np.nanmin(depth_image)
+        maxval = depth_image.max()
+        normalized_image = (depth_image - minval) / maxval - minval
         normalized_image = (normalized_image * 65535).astype(np.uint16)
+        normalized_image = 65535 - np.where(
+            normalized_image == 0, 65535, normalized_image
+        )
+        min = np.min(normalized_image)  # result=144
+        max = np.max(normalized_image)
+        LUT = np.zeros(65535, dtype=np.uint16)
+        LUT[min: max + 1] = np.linspace(
+            start=0, stop=65535, num=(max - min) + 1,
+            endpoint=True, dtype=np.uint16
+        )
+        normalized_image = LUT[normalized_image]
         get_filename(meshes[custom_draw_geometry_with_key_callback.index])
         Image.fromarray(normalized_image).save(
             custom_draw_geometry_with_key_callback.depth_name
         )
-        vis.capture_screen_image(
-            custom_draw_geometry_with_key_callback.render_name
-        )
+        vis.capture_screen_image(custom_draw_geometry_with_key_callback.render_name)
         print("image saved")
         return False
 
@@ -133,7 +142,7 @@ def custom_draw_geometry_with_key_callback(meshes, output_dir):
     key_to_callback[ord(",")] = prev_model
     key_to_callback[ord(".")] = next_model
     o3d.visualization.draw_geometries_with_key_callbacks(
-        [load_mesh(meshes[0])], key_to_callback, width=2048, height=2048
+        [load_mesh(meshes[0])], key_to_callback, width=1920, height=1920
     )
 
 

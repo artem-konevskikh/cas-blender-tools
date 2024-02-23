@@ -3,10 +3,13 @@ Load a mesh, align it to the floor plane and render it
 Rotation algorithm is from https://stackoverflow.com/questions/62596854/aligning-a-point-cloud-with-the-floor-plane-using-open3d
 """
 
+import copy
+from datetime import datetime
+import glob
 import math
 import open3d as o3d
 import numpy as np
-import matplotlib.pyplot as plt
+from PIL import Image
 
 
 def vector_angle(u, v):
@@ -60,46 +63,65 @@ def load_mesh(mesh_path):
     return rotate_mesh(model)
 
 
+def get_filename(model_path, output_dir="renders"):
+    fname = model_path.split("/")[-1].split(".")[0]
+    fname = fname.lower().replace(" ", "_")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    render_name = f"{output_dir}/render_{fname}_{timestamp}.png"
+    depth_name = f"{output_dir}/depth_{fname}_{timestamp}.png"
+    return render_name, depth_name
+
+
 def render_mesh(mesh,
                 width: int = 1024, height: int = 1024,
-                filename: str = "render.png",
-                depth_map_filename: str = "depth.png"):
+                render_name: str = "render.png",
+                depth_name: str = "depth.png"):
+    material = o3d.visualization.rendering.Material("defaultLit")
+    material.scalar_properties = {
+            "metallic": 0.0,
+            "roughness": 1.0,
+            "reflectance": 0.15,
+            "clearcoat": 0.1,
+            "clearcoat_roughness": 0.287,
+            "anisotropy": 0.0,
+            "transmission": 0.6,
+            "thickness": 0.3
+        }
     renderer_pc = o3d.visualization.rendering.OffscreenRenderer(width, height)
     renderer_pc.scene.set_background(np.array([0, 0, 0, 0]))
-    renderer_pc.scene.add_geometry("mesh", textured_mesh)
-
-    # Optionally set the camera field of view (to zoom in a bit)
-    vertical_field_of_view = 15.0  # between 5 and 90 degrees
-    aspect_ratio = width / height  # azimuth over elevation
-    near_plane = 0.1
-    far_plane = 50.0
-    fov_type = o3d.visualization.rendering.Camera.FovType.Vertical
-    renderer_pc.scene.camera.set_projection(vertical_field_of_view,
-                                            aspect_ratio, near_plane,
-                                            far_plane, fov_type)
-
-    # Look at the origin from the front (along the -Z direction,
-    # into the screen), with Y as Up.
-    center = [0, 0, 0]  # look_at target
-    eye = [0, 0, 2]  # camera position
-    up = [0, 1, 0]  # camera orientation
-    renderer_pc.scene.camera.look_at(center, eye, up)
+    renderer_pc.scene.add_geometry("mesh", mesh, material)
 
     depth_image = np.asarray(renderer_pc.render_to_depth_image())
-    # np.save('depth', depth_image)
-
-    normalized_image = (depth_image - depth_image.min()) / \
-        (depth_image.max() - depth_image.min())
-    plt.imshow(normalized_image)
-    plt.savefig(depth_map_filename)
+    minval = np.nanmin(depth_image)
+    maxval = depth_image.max()
+    normalized_image = (depth_image - minval) / maxval - minval
+    normalized_image = (normalized_image * 65535).astype(np.uint16)
+    normalized_image = 65535 - np.where(
+        normalized_image == 0, 65535, normalized_image
+    )
+    min = np.min(normalized_image)  # result=144
+    max = np.max(normalized_image)
+    LUT = np.zeros(65535, dtype=np.uint16)
+    LUT[min: max + 1] = np.linspace(
+        start=0, stop=65535, num=(max - min) + 1,
+        endpoint=True, dtype=np.uint16
+    )
+    normalized_image = LUT[normalized_image]
+    Image.fromarray(normalized_image).save(depth_name)
 
 
 # Load the mesh
-# mesh = o3d.io.read_triangle_model("models/CAS-Kalksburg-1 Sarp fusion 1.obj")
-textured_mesh = o3d.io.read_triangle_mesh("models/CAS-Kalksburg-1 Sharp fusion 1.obj")
-textured_mesh.compute_vertex_normals()
-textured_mesh.textures = [textured_mesh.textures[1], textured_mesh.textures[1]]
-
-rotate_mesh(textured_mesh)
-render_mesh(textured_mesh, filename="renders/render.png",
-            depth_map_filename="renders/depthmap.png")
+if __name__ == "__main__":
+    # List of file paths to 3D models
+    input_dir = "models"
+    output_dir = "renders"
+    meshes = sorted(glob.glob(f"{input_dir}/*.obj"))
+    for mesh_path in meshes:
+        # mesh_path = "models/CAS-Kalksburg-1 Sharp fusion 1.obj"
+        textured_mesh = o3d.io.read_triangle_mesh(mesh_path)
+        textured_mesh.compute_vertex_normals()
+        textured_mesh.textures = [textured_mesh.textures[1],
+                                  textured_mesh.textures[1]]
+        textured_mesh = rotate_mesh(textured_mesh)
+        render_name, depth_name = get_filename(mesh_path, output_dir)
+        render_mesh(textured_mesh, 2048, 2048, render_name, depth_name)
