@@ -1,0 +1,172 @@
+[
+    {
+        "name": "stone_floor_tkkkeicew",
+        "albedo": "materials/stone_floor_tkkkeicew/tkkkeicew_8K_Albedo.jpg",
+        "normal": "materials/stone_floor_tkkkeicew/tkkkeicew_8K_Normal.jpg",
+        "roughness": "materials/stone_floor_tkkkeicew/tkkkeicew_8K_Roughness.jpg",
+        "displacement": "materials/stone_floor_tkkkeicew/tkkkeicew_8K_Displacement.jpg"
+    },
+    {
+        "name": "plaster_stucco_tjfkfixn",
+        "albedo": "materials/plaster_stucco_tjfkfixn/tjfkfixn_8K_Albedo.jpg",
+        "normal": "materials/plaster_stucco_tjfkfixn/tjfkfixn_8K_Normal.jpg",
+        "roughness": "materials/plaster_stucco_tjfkfixn/tjfkfixn_8K_Roughness.jpg",
+        "displacement": "materials/plaster_stucco_tjfkfixn/tjfkfixn_8K_Displacement.jpg"
+    },
+    {
+        "name": "Concrete_Dirty_xevifcds_8K_surface_ms",
+        "albedo": "materials/Concrete_Dirty_xevifcds_8K_surface_ms/xevifcds_8K_Albedo.jpg",
+        "normal": "materials/Concrete_Dirty_xevifcds_8K_surface_ms/xevifcds_8K_Normal.jpg",
+        "roughness": "materials/Concrete_Dirty_xevifcds_8K_surface_ms/xevifcds_8K_Roughness.jpg",
+        "displacement": "materials/Concrete_Dirty_xevifcds_8K_surface_ms/xevifcds_8K_Displacement.jpg"
+    },
+    {
+        "name": "surface_Stone_tfvpaamr",
+        "albedo": "materials/surface_Stone_tfvpaamr/tfvpaamr_8K_Albedo.jpg",
+        "normal": "materials/surface_Stone_tfvpaamr/tfvpaamr_8K_Normal.jpg",
+        "roughness": "materials/surface_Stone_tfvpaamr/tfvpaamr_8K_Roughness.jpg",
+        "displacement": "materials/surface_Stone_tfvpaamr/tfvpaamr_8K_Displacement.jpg"
+    },
+    {
+        "name": "Wall_Plaster_sbxirkp0_4K_surface_ms",
+        "albedo": "materials/Wall_Plaster_sbxirkp0_4K_surface_ms/sbxirkp_4K_Albedo.jpg",
+        "normal": "materials/Wall_Plaster_sbxirkp0_4K_surface_ms/sbxirkp_4K_Normal.jpg",
+        "roughness": "materials/Wall_Plaster_sbxirkp0_4K_surface_ms/sbxirkp_4K_Roughness.jpg",
+        "displacement": "materials/Wall_Plaster_sbxirkp0_4K_surface_ms/sbxirkp_4K_Displacement.jpg"
+    },
+    {
+        "name": "wall_stucco_tjliafeo",
+        "albedo": "materials/wall_stucco_tjliafeo/tjliafeo_8K_Albedo.jpg",
+        "normal": "materials/wall_stucco_tjliafeo/tjliafeo_8K_Normal.jpg",
+        "roughness": "materials/wall_stucco_tjliafeo/tjliafeo_8K_Roughness.jpg",
+        "displacement": "materials/wall_stucco_tjliafeo/tjliafeo_8K_Displacement.jpg"
+    },
+    {
+        "name": "floors_marble_qkrl3xp0",
+        "albedo": "materials/floors_marble_qkrl3xp0/qkrl3xp_4K_Albedo.jpg",
+        "normal": "materials/floors_marble_qkrl3xp0/qkrl3xp_4K_Normal.jpg",
+        "roughness": "materials/floors_marble_qkrl3xp0/qkrl3xp_4K_Roughness.jpg",
+        "displacement": "materials/floors_marble_qkrl3xp0/qkrl3xp_4K_Displacement.jpg"
+    },
+    {
+        "name": "Plaster_Damaged_xevjddns_8K_surface_ms",
+        "albedo": "materials/Plaster_Damaged_xevjddns_8K_surface_ms/xevjddns_8K_Albedo.jpg",
+        "normal": "materials/Plaster_Damaged_xevjddns_8K_surface_ms/xevjddns_8K_Normal.jpg",
+        "roughness": "materials/Plaster_Damaged_xevjddns_8K_surface_ms/xevjddns_8K_Roughness.jpg",
+        "displacement": "materials/Plaster_Damaged_xevjddns_8K_surface_ms/xevjddns_8K_Displacement.jpg"
+    },
+    {
+        "name": "Plaster_Painted_pjBoU0_4K_surface_ms",
+        "albedo": "materials/Plaster_Painted_pjBoU0_4K_surface_ms/pjBoU_4K_Albedo.jpg",
+        "normal": "materials/Plaster_Painted_pjBoU0_4K_surface_ms/pjBoU_4K_Normal.jpg",
+        "roughness": "materials/Plaster_Painted_pjBoU0_4K_surface_ms/pjBoU_4K_Roughness.jpg",
+        "displacement": "materials/Plaster_Painted_pjBoU0_4K_surface_ms/pjBoU_4K_Displacement.jpg"
+    },
+    {
+        "name": "wall_stucco_tmtnaibg",
+        "albedo": "materials/wall_stucco_tmtnaibg/tmtnaibg_8K_Albedo.jpg",
+        "normal": "materials/wall_stucco_tmtnaibg/tmtnaibg_8K_Normal.jpg",
+        "roughness": "materials/wall_stucco_tmtnaibg/tmtnaibg_8K_Roughness.jpg",
+        "displacement": "materials/wall_stucco_tmtnaibg/tmtnaibg_8K_Displacement.jpg"
+    },
+    
+    {
+        "name": "Concrete_Damaged_ubkmcgwdy_8K_surface_ms",
+        "albedo": "materials/Concrete_Damaged_ubkmcgwdy_8K_surface_ms/ubkmcgwdy_8K_Albedo.jpg",
+        "normal": "materials/Concrete_Damaged_ubkmcgwdy_8K_surface_ms/ubkmcgwdy_8K_Normal.jpg",
+        "roughness": "materials/Concrete_Damaged_ubkmcgwdy_8K_surface_ms/ubkmcgwdy_8K_Roughness.jpg",
+        "displacement": "materials/Concrete_Damaged_ubkmcgwdy_8K_surface_ms/ubkmcgwdy_8K_Displacement.jpg"
+    },
+    {
+        "name": "Construction_sbzk2hp0_4K_surface_ms",
+        "albedo": "materials/Construction_sbzk2hp0_4K_surface_ms/sbzk2hp_4K_Albedo.jpg",
+        "normal": "materials/Construction_sbzk2hp0_4K_surface_ms/sbzk2hp_4K_Normal.jpg",
+        "roughness": "materials/Construction_sbzk2hp0_4K_surface_ms/sbzk2hp_4K_Roughness.jpg",
+        "displacement": "materials/Construction_sbzk2hp0_4K_surface_ms/sbzk2hp_4K_Displacement.jpg"
+    },
+    {
+        "name": "Plaster_Damaged_pjBji0_4K_surface_ms",
+        "albedo": "materials/Plaster_Damaged_pjBji0_4K_surface_ms/pjBji_4K_Albedo.jpg",
+        "normal": "materials/Plaster_Damaged_pjBji0_4K_surface_ms/pjBji_4K_Normal.jpg",
+        "roughness": "materials/Plaster_Damaged_pjBji0_4K_surface_ms/pjBji_4K_Roughness.jpg",
+        "displacement": "materials/Plaster_Damaged_pjBji0_4K_surface_ms/pjBji_4K_Displacement.jpg"
+    },
+    {
+        "name": "floors_marble_rm5jcyp0",
+        "albedo": "materials/floors_marble_rm5jcyp0/rm5jcyp_4K_Albedo.jpg",
+        "normal": "materials/floors_marble_rm5jcyp0/rm5jcyp_4K_Normal.jpg",
+        "roughness": "materials/floors_marble_rm5jcyp0/rm5jcyp_4K_Roughness.jpg",
+        "displacement": "materials/floors_marble_rm5jcyp0/rm5jcyp_4K_Displacement.jpg"
+    },
+    {
+        "name": "floors_marble_tfxkehvg",
+        "albedo": "materials/floors_marble_tfxkehvg/tfxkehvg_8K_Albedo.jpg",
+        "normal": "materials/floors_marble_tfxkehvg/tfxkehvg_8K_Normal.jpg",
+        "roughness": "materials/floors_marble_tfxkehvg/tfxkehvg_8K_Roughness.jpg",
+        "displacement": "materials/floors_marble_tfxkehvg/tfxkehvg_8K_Displacement.jpg"
+    },
+    {
+        "name": "Concrete_Damaged_tefmajbn_8K_surface_ms",
+        "albedo": "materials/Concrete_Damaged_tefmajbn_8K_surface_ms/tefmajbn_8K_Albedo.jpg",
+        "normal": "materials/Concrete_Damaged_tefmajbn_8K_surface_ms/tefmajbn_8K_Normal.jpg",
+        "roughness": "materials/Concrete_Damaged_tefmajbn_8K_surface_ms/tefmajbn_8K_Roughness.jpg",
+        "displacement": "materials/Concrete_Damaged_tefmajbn_8K_surface_ms/tefmajbn_8K_Displacement.jpg"
+    },
+    {
+        "name": "Wall_Painted_tmglejmcw_8K_surface_ms (SQ)",
+        "albedo": "materials/Wall_Painted_tmglejmcw_8K_surface_ms (SQ)/tmglejmcw_8K_Albedo.jpg",
+        "normal": "materials/Wall_Painted_tmglejmcw_8K_surface_ms (SQ)/tmglejmcw_8K_Normal.jpg",
+        "roughness": "materials/Wall_Painted_tmglejmcw_8K_surface_ms (SQ)/tmglejmcw_8K_Roughness.jpg",
+        "displacement": "materials/Wall_Painted_tmglejmcw_8K_surface_ms (SQ)/tmglejmcw_8K_Displacement.jpg"
+    },
+    {
+        "name": "floors_marble_tkwgfatew",
+        "albedo": "materials/floors_marble_tkwgfatew/tkwgfatew_8K_Albedo.jpg",
+        "normal": "materials/floors_marble_tkwgfatew/tkwgfatew_8K_Normal.jpg",
+        "roughness": "materials/floors_marble_tkwgfatew/tkwgfatew_8K_Roughness.jpg",
+        "displacement": "materials/floors_marble_tkwgfatew/tkwgfatew_8K_Displacement.jpg"
+    },
+    
+    {
+        "name": "Wall_Painted_rlvklup0_4K_surface_ms",
+        "albedo": "materials/Wall_Painted_rlvklup0_4K_surface_ms/rlvklup_4K_Albedo.jpg",
+        "normal": "materials/Wall_Painted_rlvklup0_4K_surface_ms/rlvklup_4K_Normal.jpg",
+        "roughness": "materials/Wall_Painted_rlvklup0_4K_surface_ms/rlvklup_4K_Roughness.jpg",
+        "displacement": "materials/Wall_Painted_rlvklup0_4K_surface_ms/rlvklup_4K_Displacement.jpg"
+    },
+    {
+        "name": "concrete_damaged_pkngj0",
+        "albedo": "materials/concrete_damaged_pkngj0/pkngj_4K_Albedo.jpg",
+        "normal": "materials/concrete_damaged_pkngj0/pkngj_4K_Normal.jpg",
+        "roughness": "materials/concrete_damaged_pkngj0/pkngj_4K_Roughness.jpg",
+        "displacement": "materials/concrete_damaged_pkngj0/pkngj_4K_Displacement.jpg"
+    },
+    {
+        "name": "rock_rough_tj0nch3fw",
+        "albedo": "materials/rock_rough_tj0nch3fw/tj0nch3fw_8K_Albedo.jpg",
+        "normal": "materials/rock_rough_tj0nch3fw/tj0nch3fw_8K_Normal.jpg",
+        "roughness": "materials/rock_rough_tj0nch3fw/tj0nch3fw_8K_Roughness.jpg",
+        "displacement": "materials/rock_rough_tj0nch3fw/tj0nch3fw_8K_Displacement.jpg"
+    },
+    {
+        "name": "floors_marble_rl0kylp0",
+        "albedo": "materials/floors_marble_rl0kylp0/rl0kylp_4K_Albedo.jpg",
+        "normal": "materials/floors_marble_rl0kylp0/rl0kylp_4K_Normal.jpg",
+        "roughness": "materials/floors_marble_rl0kylp0/rl0kylp_4K_Roughness.jpg",
+        "displacement": "materials/floors_marble_rl0kylp0/rl0kylp_4K_Displacement.jpg"
+    },
+    {
+        "name": "floors_marble_rm5jctp0",
+        "albedo": "materials/floors_marble_rm5jctp0/rm5jctp_4K_Albedo.jpg",
+        "normal": "materials/floors_marble_rm5jctp0/rm5jctp_4K_Normal.jpg",
+        "roughness": "materials/floors_marble_rm5jctp0/rm5jctp_4K_Roughness.jpg",
+        "displacement": "materials/floors_marble_rm5jctp0/rm5jctp_4K_Displacement.jpg"
+    },
+    {
+        "name": "Wall_Plaster_ti2mcaycw_8K_surface_ms",
+        "albedo": "materials/Wall_Plaster_ti2mcaycw_8K_surface_ms/ti2mcaycw_8K_Albedo.jpg",
+        "normal": "materials/Wall_Plaster_ti2mcaycw_8K_surface_ms/ti2mcaycw_8K_Normal.jpg",
+        "roughness": "materials/Wall_Plaster_ti2mcaycw_8K_surface_ms/ti2mcaycw_8K_Roughness.jpg",
+        "displacement": "materials/Wall_Plaster_ti2mcaycw_8K_surface_ms/ti2mcaycw_8K_Displacement.jpg"
+    }
+]

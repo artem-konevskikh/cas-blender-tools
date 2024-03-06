@@ -3,13 +3,14 @@ from math import radians
 from pathlib import Path
 from typing import Dict, List
 import bpy
+import json
 
 
 def set_render_settings(
     resolution_x=4096,
     resolution_y=4096,
-    file_format: str = "PNG",  # ('PNG', 'OPEN_EXR', 'JPEG')
-    color_depth: str = "16",  # ('8', '16')
+    file_format: str = "JPEG",  # ('PNG', 'OPEN_EXR', 'JPEG')
+    color_depth: str = "8",  # ('8', '16')
     color_mode: str = "RGB",  # ('RGB', 'RGBA', ...)
 ):
     context = bpy.context
@@ -23,7 +24,7 @@ def set_render_settings(
     render.resolution_x = resolution_x
     render.resolution_y = resolution_y
     render.resolution_percentage = 100
-    render.film_transparent = True
+    render.film_transparent = False
 
     scene.use_nodes = True
     context.window.view_layer.use_pass_normal = True
@@ -267,6 +268,9 @@ def rotate_and_render(
     depth_file_output=None,
 ):
     subject.rotation_euler[2] = radians(angle)
+    bpy.context.scene.render.image_settings.color_mode = "RGB"
+    bpy.context.scene.render.image_settings.color_depth = "8"
+    bpy.context.scene.render.image_settings.file_format = "JPEG"
     bpy.context.scene.render.filepath = f"{output_file}_render"
     if depth_file_output:
         depth_file_output.base_path = f"{output_file}_depth"
@@ -284,7 +288,9 @@ def render_interpolation(
     if loop:
         models += models[::-1]
     for mat in materials:
-        for i, model in enumerate(models[:1]):
+        for i, model in enumerate(models):
+            if i % 10 != 0:
+                continue
             depth_file_output = set_render_settings(resolution, resolution)
             obj = load_mesh_with_material(
                 str(model), load_material(mat), max_dim=0.8
@@ -339,10 +345,10 @@ concrete_material = {
 
 plaster_material = {
     "name": "Plaster_Damaged_pjBji0_4K_surface_ms",
-    "albedo": "materials/Plaster_Damaged_pjBji0_4K_surface_ms/pjBji0_4K_Albedo.jpg",
-    "displacement": "materials/Plaster_Damaged_pjBji0_4K_surface_ms/pjBji0_4K_Displacement.jpg",
-    "normal": "materials/Plaster_Damaged_pjBji0_4K_surface_ms/pjBji0_4K_Normal.jpg",
-    "roughness": "materials/Plaster_Damaged_pjBji0_4K_surface_ms/pjBji0_4K_Roughness.jpg",
+    "albedo": "materials/Plaster_Damaged_pjBji0_4K_surface_ms/pjBji_4K_Albedo.jpg",
+    "displacement": "materials/Plaster_Damaged_pjBji0_4K_surface_ms/pjBji_4K_Displacement.jpg",
+    "normal": "materials/Plaster_Damaged_pjBji0_4K_surface_ms/pjBji_4K_Normal.jpg",
+    "roughness": "materials/Plaster_Damaged_pjBji0_4K_surface_ms/pjBji_4K_Roughness.jpg",
 }
 
 # depth_file_output = set_render_settings(1024, 1024)
@@ -371,11 +377,28 @@ plaster_material = {
 #     [stone_material, wall_material, concrete_material, plaster_material],
 #     loop=True,
 # )
+# # Load materials from materials.json
+# with open('materials.json') as f:
+#     materials = json.load(f)
 
-for material in [wall_material, concrete_material, plaster_material]:
-    render_one_frame(
-        "/home/aicu/ai/3d/sdf-stylegan/outputs/skulls005/interpolate_mesh_runs_skulls-last-v2.ckpt_True_1e-07_224_1.2_00000.obj",
-        f"renders/skulls005/test/{material['name']}_00000000",
-        1024,
-        material,
-    )
+
+# for material in materials:
+#     if os.path.exists(f"renders/skulls005/test/{material['name']}_00000000_render.jpg"):
+#         continue
+#     render_one_frame(
+#         "../interpolations/interpolations_feb24/skulls01/interpolate_mesh_runs_skulls-last-v2.ckpt_True_0.001_128_1.0_0.obj",
+#         f"renders/skulls005/test2/{material['name']}_00000000",
+#         2048,
+#         material,
+#     )
+
+
+input_dir = "../interpolations/interpolations_feb24/skulls01/"
+output_dir = "renders/skulls01"
+render_interpolation(
+    input_dir,
+    output_dir,
+    2048,
+    [concrete_material],
+    loop=True,
+)
