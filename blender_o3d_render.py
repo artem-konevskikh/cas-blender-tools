@@ -185,7 +185,7 @@ def render_model(
     output_dir: str,
     depth_file_output, id_file_output,
     max_dim: int = 0.8,
-    mesh_rotation_angle: tuple = (0, 0, 0, 0, 0),
+    mesh_rotation_angle: tuple | None = None,
 ):
     context = bpy.context
     scene = bpy.context.scene
@@ -208,20 +208,24 @@ def render_model(
     bpy.context.object.location = (0, 0, 0)
 
     # align object
-    rot_angle, x, y, z, bbox_angle = mesh_rotation_angle
-    q = Quaternion((x, y, z), rot_angle)
+    if mesh_rotation_angle is not None:
+        rot_angle, x, y, z, bbox_angle = mesh_rotation_angle
+        q = Quaternion((x, y, z), rot_angle)
+        bpy.context.object.matrix_world = (
+            q.to_matrix().to_4x4() @ bpy.context.object.matrix_world
+        )
+        q = Quaternion((1, 0, 0), math.radians(180))
+        bpy.context.object.matrix_world = (
+            q.to_matrix().to_4x4() @ bpy.context.object.matrix_world
+        )
+        q = Quaternion((0, 0, 0), bbox_angle)
+        bpy.context.object.matrix_world = (
+            q.to_matrix().to_4x4() @ bpy.context.object.matrix_world
+        )
+    q = Quaternion((1, 0, 0), math.radians(90))
     bpy.context.object.matrix_world = (
         q.to_matrix().to_4x4() @ bpy.context.object.matrix_world
     )
-    q = Quaternion((1, 0, 0), math.radians(180))
-    bpy.context.object.matrix_world = (
-        q.to_matrix().to_4x4() @ bpy.context.object.matrix_world
-    )
-    q = Quaternion((0, 0, 0), bbox_angle)
-    bpy.context.object.matrix_world = (
-        q.to_matrix().to_4x4() @ bpy.context.object.matrix_world
-    )
-
     # scale object
     max_dim_current = max(obj.dimensions.x, obj.dimensions.y, obj.dimensions.z)
     ratio = max_dim / max_dim_current
@@ -303,11 +307,12 @@ def render_model(
 
 if __name__ == "__main__":
     # List of file paths to 3D models
-    input_dir = "/Users/akonevskikh/Work/wwwwwork/cas/Paleontology/Meshes-2023-06"
-    output_dir = "renders"
+    input_dir = "/Users/akonevskikh/Work/wwwwwork/cas/Paleontology/Meshes-2023-06-2"
+    output_dir = "renders2"
+    rotate = False
     depth_file_output, id_file_output = init_scene(resolution=2048)
     for model in sorted(glob.glob(f"{input_dir}/*.obj")):
         print(model)
-        mesh_rot_angle = get_mesh_rotation(model)
-        render_model(model, "renders", depth_file_output, id_file_output,
+        mesh_rot_angle = get_mesh_rotation(model) if rotate else None
+        render_model(model, output_dir, depth_file_output, id_file_output,
                      mesh_rotation_angle=mesh_rot_angle)
