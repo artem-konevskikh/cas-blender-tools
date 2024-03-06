@@ -9,9 +9,9 @@ import json
 def set_render_settings(
     resolution_x=4096,
     resolution_y=4096,
-    file_format: str = "JPEG",  # ('PNG', 'OPEN_EXR', 'JPEG')
-    color_depth: str = "8",  # ('8', '16')
-    color_mode: str = "RGB",  # ('RGB', 'RGBA', ...)
+    file_format: str = "PNG",  # ('PNG', 'OPEN_EXR', 'JPEG')
+    color_depth: str = "16",  # ('8', '16')
+    color_mode: str = "RGBA",  # ('RGB', 'RGBA', ...)
 ):
     context = bpy.context
     scene = bpy.context.scene
@@ -24,7 +24,7 @@ def set_render_settings(
     render.resolution_x = resolution_x
     render.resolution_y = resolution_y
     render.resolution_percentage = 100
-    render.film_transparent = False
+    render.film_transparent = True
 
     scene.use_nodes = True
     context.window.view_layer.use_pass_normal = True
@@ -268,13 +268,14 @@ def rotate_and_render(
     depth_file_output=None,
 ):
     subject.rotation_euler[2] = radians(angle)
-    bpy.context.scene.render.image_settings.color_mode = "RGB"
-    bpy.context.scene.render.image_settings.color_depth = "8"
-    bpy.context.scene.render.image_settings.file_format = "JPEG"
     bpy.context.scene.render.filepath = f"{output_file}_render"
     if depth_file_output:
         depth_file_output.base_path = f"{output_file}_depth"
     bpy.ops.render.render(write_still=True)
+
+
+def sort_models_by_name(models):
+    return list(sorted(models, key=lambda x: int(x.stem.split("_")[-1])))
 
 
 def render_interpolation(
@@ -284,7 +285,8 @@ def render_interpolation(
     materials: List[Dict],
     loop: bool = False,
 ):
-    models = sorted(Path(input_dir).rglob("*.obj"))
+    models = Path(input_dir).rglob("*.obj")
+    models = sort_models_by_name(models)
     if loop:
         models += models[::-1]
     for mat in materials:
