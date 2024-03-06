@@ -299,8 +299,13 @@ def render_interpolation(
                 f"{output_dir}/{mat['name']}/frame_{i:08d}",
                 angle=i,
                 subject=obj,
-                depth_file_output=depth_file_output,
+                # depth_file_output=depth_file_output,
             )
+            for obj in bpy.context.scene.objects:
+                # Check if the object is a mesh
+                if obj.type == 'MESH':
+                    # If it is, delete it
+                    bpy.data.objects.remove(obj, do_unlink=True)
 
 
 def render_one_frame(
