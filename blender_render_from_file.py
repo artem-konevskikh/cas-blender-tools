@@ -16,7 +16,7 @@ def set_render_settings(
     scene = bpy.context.scene
     render = bpy.context.scene.render
 
-    # render.engine = engine
+    render.engine = 'CYCLES'
     render.image_settings.color_mode = color_mode
     render.image_settings.color_depth = color_depth
     render.image_settings.file_format = file_format
@@ -188,11 +188,6 @@ def load_mesh_with_material(model_file: str, material, max_dim: float = 0.5):
     obj.rotation_euler[0] = radians(3)
     obj.rotation_euler[1] = radians(0.2)
 
-    # Remove double vertices to improve mesh quality
-    bpy.ops.object.mode_set(mode="EDIT")
-    bpy.ops.mesh.remove_doubles()
-    bpy.ops.object.mode_set(mode="OBJECT")
-
     if obj.data.materials:
         obj.data.materials[0] = material
     else:
@@ -232,7 +227,10 @@ def load_mesh_with_material(model_file: str, material, max_dim: float = 0.5):
         node = slot.material.node_tree.nodes["Principled BSDF"]
         node.inputs["Specular"].default_value = 0.0001
 
-    
+    # Remove double vertices to improve mesh quality
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.remove_doubles()
+    bpy.ops.object.mode_set(mode="OBJECT")
 
     # Adds edge split filter
     bpy.ops.object.modifier_add(type="EDGE_SPLIT")
@@ -286,7 +284,7 @@ def render_interpolation(
     if loop:
         models += models[::-1]
     for mat in materials:
-        for i, model in enumerate(models):
+        for i, model in enumerate(models[:1]):
             depth_file_output = set_render_settings(resolution, resolution)
             obj = load_mesh_with_material(
                 str(model), load_material(mat), max_dim=0.8
@@ -299,20 +297,52 @@ def render_interpolation(
             )
 
 
+def render_one_frame(
+    model: str,
+    output_file: str,
+    resolution: int,
+    material: Dict,
+):
+    # depth_file_output = set_render_settings(resolution, resolution)
+    obj = load_mesh_with_material(
+        model, load_material(material), max_dim=0.8
+    )
+    rotate_and_render(
+        output_file,
+        angle=0,
+        subject=obj,
+    )
+    
+
 stone_material = {
     "name": "stone_floor_tkkkeicew",
-    "albedo": "../materials/stone_floor_tkkkeicew/tkkkeicew_8K_Albedo.jpg",
-    "displacement": "../materials/stone_floor_tkkkeicew/tkkkeicew_8K_Displacement.jpg",
-    "normal": "../materials/stone_floor_tkkkeicew/tkkkeicew_8K_Normal.jpg",
-    "roughness": "../materials/stone_floor_tkkkeicew/tkkkeicew_8K_Roughness.jpg",
+    "albedo": "materials/stone_floor_tkkkeicew/tkkkeicew_8K_Albedo.jpg",
+    "displacement": "materials/stone_floor_tkkkeicew/tkkkeicew_8K_Displacement.jpg",
+    "normal": "materials/stone_floor_tkkkeicew/tkkkeicew_8K_Normal.jpg",
+    "roughness": "materials/stone_floor_tkkkeicew/tkkkeicew_8K_Roughness.jpg",
 }
 wall_material = {
-    "name": "wall",
-    "albedo": "../materials/Wall_Painted_rlvklup0_4K_surface_ms/rlvklup_4K_Albedo.jpg",
-    "displacement": "../materials/Wall_Painted_rlvklup0_4K_surface_ms/rlvklup_4K_Displacement.jpg.jpg",
-    "normal": "../materials/Wall_Painted_rlvklup0_4K_surface_ms/rlvklup_4K_Normal.jpg",
-    "roughness": "../materials/Wall_Painted_rlvklup0_4K_surface_ms/rlvklup_4K_Roughness.jpg",
+    "name": "Wall_Painted_rlvklup0_4K_surface_ms",
+    "albedo": "materials/Wall_Painted_rlvklup0_4K_surface_ms/rlvklup_4K_Albedo.jpg",
+    "displacement": "materials/Wall_Painted_rlvklup0_4K_surface_ms/rlvklup_4K_Displacement.jpg",
+    "normal": "materials/Wall_Painted_rlvklup0_4K_surface_ms/rlvklup_4K_Normal.jpg",
+    "roughness": "materials/Wall_Painted_rlvklup0_4K_surface_ms/rlvklup_4K_Roughness.jpg",
 
+}
+concrete_material = {
+    "name": "Concrete_Damaged_tefmajbn_8K_surface_ms",
+    "albedo": "materials/Concrete_Damaged_tefmajbn_8K_surface_ms/tefmajbn_8K_Albedo.jpg",
+    "displacement": "materials/Concrete_Damaged_tefmajbn_8K_surface_ms/tefmajbn_8K_Displacement.jpg",
+    "normal": "materials/Concrete_Damaged_tefmajbn_8K_surface_ms/tefmajbn_8K_Normal.jpg",
+    "roughness": "materials/Concrete_Damaged_tefmajbn_8K_surface_ms/tefmajbn_8K_Roughness.jpg",
+}
+
+plaster_material = {
+    "name": "Plaster_Damaged_pjBji0_4K_surface_ms",
+    "albedo": "materials/Plaster_Damaged_pjBji0_4K_surface_ms/pjBji0_4K_Albedo.jpg",
+    "displacement": "materials/Plaster_Damaged_pjBji0_4K_surface_ms/pjBji0_4K_Displacement.jpg",
+    "normal": "materials/Plaster_Damaged_pjBji0_4K_surface_ms/pjBji0_4K_Normal.jpg",
+    "roughness": "materials/Plaster_Damaged_pjBji0_4K_surface_ms/pjBji0_4K_Roughness.jpg",
 }
 
 # depth_file_output = set_render_settings(1024, 1024)
@@ -332,12 +362,20 @@ wall_material = {
 #     # depth_file_output=depth_file_output,
 # )
 
-input_dir = "/Users/akonevskikh/Work/wwwwwork/cas/Paleontology/interpolations/interpolations_feb24/skulls01"
-output_dir = "/Users/akonevskikh/Work/wwwwwork/cas/Paleontology/renders/interpolations_feb24/skulls01"
-render_interpolation(
-    input_dir,
-    output_dir,
-    256,
-    [stone_material, wall_material],
-    loop=True,
-)
+# input_dir = "/home/aicu/ai/3d/sdf-stylegan/outputs/skulls005"
+# output_dir = "renders/skulls005"
+# render_interpolation(
+#     input_dir,
+#     output_dir,
+#     2048,
+#     [stone_material, wall_material, concrete_material, plaster_material],
+#     loop=True,
+# )
+
+for material in [wall_material, concrete_material, plaster_material]:
+    render_one_frame(
+        "/home/aicu/ai/3d/sdf-stylegan/outputs/skulls005/interpolate_mesh_runs_skulls-last-v2.ckpt_True_1e-07_224_1.2_00000.obj",
+        f"renders/skulls005/test/{material['name']}_00000000",
+        1024,
+        material,
+    )

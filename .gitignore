@@ -160,8 +160,10 @@ cython_debug/
 #.idea/
 .DS_Store
 models/
+materials/
 output/
 renders/
 renders2/
 *.mp4
 *.png
+*.blend
