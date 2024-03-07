@@ -189,7 +189,10 @@ def load_mesh_with_material(model_file: str, material, max_dim: float = 0.5):
     obj.rotation_euler[0] = radians(3)
     obj.rotation_euler[1] = radians(0.2)
 
-    
+    if obj.data.materials:
+        obj.data.materials[0] = material
+    else:
+        obj.data.materials.append(material)
 
     bpy.context.view_layer.objects.active = obj
 
@@ -230,20 +233,10 @@ def load_mesh_with_material(model_file: str, material, max_dim: float = 0.5):
     bpy.ops.mesh.remove_doubles()
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    bpy.ops.object.modifier_add(type="DECIMATE")
-    bpy.context.object.modifiers["Decimate"].ratio = 0.1
-    bpy.context.object.modifiers["Decimate"].use_collapse_triangulate = True
-    bpy.ops.object.modifier_apply(modifier="Decimate")
-
-    # # Adds edge split filter
-    # bpy.ops.object.modifier_add(type="EDGE_SPLIT")
-    # bpy.context.object.modifiers["EdgeSplit"].split_angle = 1.32645
-    # bpy.ops.object.modifier_apply(modifier="EdgeSplit")
-
-    if obj.data.materials:
-        obj.data.materials[0] = material
-    else:
-        obj.data.materials.append(material)
+    # Adds edge split filter
+    bpy.ops.object.modifier_add(type="EDGE_SPLIT")
+    bpy.context.object.modifiers["EdgeSplit"].split_angle = 1.32645
+    bpy.ops.object.modifier_apply(modifier="EdgeSplit")
 
     # Set objekt IDs
     obj.pass_index = 1
@@ -285,7 +278,7 @@ def sort_models_by_name(models):
     return list(sorted(models, key=lambda x: int(x.stem.split("_")[-1])))
 
 
-def render_folder(
+def render_interpolation(
     input_dir: str,
     output_dir: str,
     resolution: int,
@@ -293,16 +286,22 @@ def render_folder(
     loop: bool = False,
 ):
     models = Path(input_dir).rglob("*.obj")
+    models = sort_models_by_name(models)
+    if loop:
+        models += models[::-1]
     for mat in materials:
-        for model in models:
+        for i, model in enumerate(models):
+            if i == 0 or i % 5 != 0 or i % 10 == 0:
+                continue
             depth_file_output = set_render_settings(resolution, resolution)
             obj = load_mesh_with_material(
                 str(model), load_material(mat), max_dim=0.8
             )
-            rotate360_and_render(
-                f"{output_dir}/{mat['name']}/{model.stem}",
-                rotation_steps=36,
+            rotate_and_render(
+                f"{output_dir}/{mat['name']}/frame_{i:08d}",
+                angle=i,
                 subject=obj,
+                # depth_file_output=depth_file_output,
             )
             for obj in bpy.context.scene.objects:
                 # Check if the object is a mesh
@@ -326,6 +325,32 @@ def render_one_frame(
         angle=0,
         subject=obj,
     )
+
+
+def render_folder(
+    input_dir: str,
+    output_dir: str,
+    resolution: int,
+    materials: List[Dict],
+):
+    models = Path(input_dir).rglob("*.obj")
+    for mat in materials:
+        for i, model in enumerate(models):
+            depth_file_output = set_render_settings(resolution, resolution)
+            obj = load_mesh_with_material(
+                str(model), load_material(mat), max_dim=0.8
+            )
+            render_one_frame(
+                str(model),
+                f"{output_dir}/{mat['name']}/{model.stem}",
+                resolution,
+                mat,
+            )
+            for obj in bpy.context.scene.objects:
+                # Check if the object is a mesh
+                if obj.type == 'MESH':
+                    # If it is, delete it
+                    bpy.data.objects.remove(obj, do_unlink=True)
 
 stone_material = {
     "name": "stone_floor_tkkkeicew",
