@@ -291,7 +291,7 @@ def render_interpolation(
         models += models[::-1]
     for mat in materials:
         for i, model in enumerate(models):
-            if i % 10 != 0:
+            if i == 0 or i % 5 != 0 or i % 10 == 0:
                 continue
             depth_file_output = set_render_settings(resolution, resolution)
             obj = load_mesh_with_material(
@@ -316,7 +316,7 @@ def render_one_frame(
     resolution: int,
     material: Dict,
 ):
-    # depth_file_output = set_render_settings(resolution, resolution)
+    depth_file_output = set_render_settings(resolution, resolution)
     obj = load_mesh_with_material(
         model, load_material(material), max_dim=0.8
     )
@@ -325,7 +325,32 @@ def render_one_frame(
         angle=0,
         subject=obj,
     )
-    
+
+
+def render_folder(
+    input_dir: str,
+    output_dir: str,
+    resolution: int,
+    materials: List[Dict],
+):
+    models = Path(input_dir).rglob("*.obj")
+    for mat in materials:
+        for i, model in enumerate(models):
+            depth_file_output = set_render_settings(resolution, resolution)
+            obj = load_mesh_with_material(
+                str(model), load_material(mat), max_dim=0.8
+            )
+            render_one_frame(
+                str(model),
+                f"{output_dir}/{mat['name']}/{model.stem}",
+                resolution,
+                mat,
+            )
+            for obj in bpy.context.scene.objects:
+                # Check if the object is a mesh
+                if obj.type == 'MESH':
+                    # If it is, delete it
+                    bpy.data.objects.remove(obj, do_unlink=True)
 
 stone_material = {
     "name": "stone_floor_tkkkeicew",
@@ -401,7 +426,7 @@ plaster_material = {
 
 
 input_dir = "../interpolations/interpolations_feb24/skulls01/"
-output_dir = "renders/skulls01"
+output_dir = "renders/skulls01-5"
 render_interpolation(
     input_dir,
     output_dir,
