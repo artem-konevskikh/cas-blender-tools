@@ -1,13 +1,4 @@
 """
-
-
-
-
-    
-
-        
-
-    python blender_render_batch_scans.py -i /path/to/input -o /path/to/output --width 2048 --height 2048
 This script batch renders 3D models from .obj files using Blender. It provides functions to set render settings, load textured meshes, rotate and render objects, and process all models in a specified directory.
 
 Functions:
@@ -106,8 +97,13 @@ def set_render_settings(
         map.use_max = True
         map.max = [255]
 
-        links.new(render_layers.outputs["Depth"], map.inputs[0])
-        links.new(map.outputs[0], depth_file_output.inputs[0])
+    # Set background to black
+    alpha_over = nodes.new(type="CompositorNodeAlphaOver")
+    alpha_over.inputs[1].default_value = (0, 0, 0, 1)  # Black background
+
+    links.new(render_layers.outputs["Depth"], map.inputs[0])
+    links.new(map.outputs[0], alpha_over.inputs[2])
+    links.new(alpha_over.outputs[0], depth_file_output.inputs[0])
     return depth_file_output
 
 
